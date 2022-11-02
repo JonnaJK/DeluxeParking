@@ -4,7 +4,8 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            ParkingHouse parkingHouse = new();
+            parkingHouse.Run();
         }
     }
 }
