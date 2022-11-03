@@ -1,4 +1,5 @@
 ﻿using DeluxeParking.Classes;
+using DeluxeParking.Classes.Vehicles;
 using DeluxeParking.Helpers;
 using System;
 using System.Collections.Generic;
@@ -17,12 +18,15 @@ namespace DeluxeParking
 
         // Properties
         public Dictionary<string, ParkingSpot> ParkingSpots { get; init; }
+        public List<VehicleBase> Vehicles { get; set; } = new();
 
+        // Contructor
         public ParkingHouse()
         {
             ParkingSpots = new(_numberOfSpots);
         }
 
+        // Functions
         public void Run()
         {
             // Menu()
@@ -47,12 +51,23 @@ namespace DeluxeParking
         private void ParkVehicle()
         {
             // Get random vehicle
+            var randomVehicle = _random.Next(1, 3);
+            if (randomVehicle is 1)
+            {
+                Vehicles.Add(new Car());
+            }
+            else if (randomVehicle is 2)
+            {
 
+            }
+            else
+            {
+
+            }
         }
 
         private void CheckOutVehicle()
         {
-            throw new NotImplementedException();
         }
     }
 }
