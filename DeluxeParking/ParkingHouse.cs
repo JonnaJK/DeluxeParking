@@ -18,7 +18,7 @@ namespace DeluxeParking
 
         // Properties
         public Dictionary<string, ParkingSpot> ParkingSpots { get; init; }
-        public List<VehicleBase> Vehicles { get; set; } = new();
+        public List<VehicleBase> VehiclesInQueue { get; set; } = new();
 
         // Contructor
         public ParkingHouse()
@@ -54,16 +54,18 @@ namespace DeluxeParking
             var randomVehicle = _random.Next(1, 3);
             if (randomVehicle is 1)
             {
-                Vehicles.Add(new Car());
+                VehiclesInQueue.Add(new Car(_random));
             }
             else if (randomVehicle is 2)
             {
-
+                VehiclesInQueue.Add(new Motorcycle());
             }
             else
             {
-
+                VehiclesInQueue.Add(new Bus());
             }
+
+
         }
 
         private void CheckOutVehicle()
