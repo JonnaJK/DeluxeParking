@@ -8,5 +8,6 @@ namespace DeluxeParking.Classes
 {
     internal class ParkingSpot
     {
+        public int Size { get; set; }
     }
 }

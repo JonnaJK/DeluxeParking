@@ -8,5 +8,6 @@ namespace DeluxeParking.Classes.Vehicles
 {
     internal class Car
     {
+        public bool Electric { get; set; }
     }
 }

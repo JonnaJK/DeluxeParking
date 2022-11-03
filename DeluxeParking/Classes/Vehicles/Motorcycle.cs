@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace DeluxeParking.Classes.Vehicles
 {
-    internal class Motorcycle
+    internal class Motorcycle : VehicleBase
     {
-
+        public string Brand { get; set; }
     }
 }

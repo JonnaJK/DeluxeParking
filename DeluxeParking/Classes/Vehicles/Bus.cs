@@ -8,6 +8,6 @@ namespace DeluxeParking.Classes.Vehicles
 {
     internal class Bus
     {
-        public int MyProperty { get; set; }
+        public int NumberOfSeats { get; set; }
     }
 }
