@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 
 namespace DeluxeParking.Helpers
 {
-    internal class GUI
+    internal static class GUI
     {
-        internal static void OutGoingMessage(string message)
+        internal static string? GetInput(string message = "")
         {
-            Console.WriteLine(message);
+            if (string.IsNullOrEmpty(message))
+            {
+                Console.WriteLine(message);
+            }
+            return Console.ReadLine();
         }
     }
 }

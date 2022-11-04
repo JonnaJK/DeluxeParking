@@ -33,9 +33,14 @@ namespace DeluxeParking
             Console.WriteLine("Choose action:");
             Console.WriteLine("[P] - Park new vehicle");
             Console.WriteLine("[C] - Check out existing vehicle");
-            var menuChoice = StringHelpers.ValidateInput();
 
-            switch (menuChoice)
+            var input = Console.ReadLine()?.ToLower();
+            while (!input.ValidateInput())
+            {
+                input = GUI.GetInput("Felaktig inmatning, försök igen.")?.ToLower();
+            }
+
+            switch (input)
             {
                 case "p":
                     ParkVehicle();
@@ -54,18 +59,20 @@ namespace DeluxeParking
             var randomVehicle = _random.Next(1, 3);
             if (randomVehicle is 1)
             {
+                var answer = GUI.GetInput("Is the car electric? Y/N");
+                
                 VehiclesInQueue.Add(new Car(_random));
             }
             else if (randomVehicle is 2)
             {
-                VehiclesInQueue.Add(new Motorcycle());
+                //VehiclesInQueue.Add(new Motorcycle());
             }
             else
             {
                 VehiclesInQueue.Add(new Bus());
             }
 
-
+            // Check type in VehiclesInQueue
         }
 
         private void CheckOutVehicle()

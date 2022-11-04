@@ -22,14 +22,14 @@ namespace DeluxeParking.Classes.Vehicles
 
         internal static string GetRegistrationNumber()
         {
-            string registrationNumber = "";
+            var registrationNumber = "";
             for (int i = 0; i < 3; i++)
             {
-                registrationNumber += StringHelpers.GetLetter(); 
+                registrationNumber += StringHelpers.GetRandomLetter(); 
             }
             for (int i = 0; i < 3; i++)
             {
-                registrationNumber += IntHelpers.GetNumber().ToString();
+                registrationNumber += IntHelpers.GetRandomNumber().ToString();
             }
 
             return registrationNumber;

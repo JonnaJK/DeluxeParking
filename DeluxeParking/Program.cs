@@ -1,4 +1,6 @@
-﻿namespace DeluxeParking
+﻿using DeluxeParking.Helpers;
+
+namespace DeluxeParking
 {
     internal class Program
     {

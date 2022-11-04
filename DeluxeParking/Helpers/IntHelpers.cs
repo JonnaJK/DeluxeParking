@@ -8,7 +8,7 @@ namespace DeluxeParking.Helpers
 {
     internal class IntHelpers
     {
-        internal static int GetNumber()
+        internal static int GetRandomNumber()
         {
             Random random = new();
             List<int> numbers = new()

@@ -12,11 +12,11 @@ namespace DeluxeParking.Classes.Vehicles
 
         public Car(Random random)
         {
-            int probability = random.Next(101);
-            if (probability > 75)
-            {
-                Electric = true;
-            }
+            //int probability = random.Next(101);
+            //if (probability > 75)
+            //{
+            //    Electric = true;
+            //}
         }
     }
 }

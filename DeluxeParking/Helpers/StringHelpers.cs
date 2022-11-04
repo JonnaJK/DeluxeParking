@@ -6,42 +6,46 @@ using System.Threading.Tasks;
 
 namespace DeluxeParking.Helpers
 {
-    internal class StringHelpers
+    internal static class StringHelpers
     {
-        internal static string ValidateInput()
+        //
+        internal static bool ValidateInput(this string? input)
         {
-            var input = "";
-            while (string.IsNullOrEmpty(input))
-            {
-                input = Console.ReadLine().ToLower();
-                if (input is "p")
-                {
-                    Console.WriteLine("You chose to park vehicle");
-                }
-                else if (input is "c")
-                {
-                    Console.WriteLine("You chose to check out vehicle");
-                }
-                else
-                {
-                    Console.WriteLine("Felaktig inmatning, försök igen.");
-                    input = "";
-                }
-            }
+            //while (string.IsNullOrEmpty(input))
+            //{
+            //    if (input is "p")
+            //    {
+            //        Console.WriteLine("You chose to park vehicle");
+            //    }
+            //    else if (input is "c")
+            //    {
+            //        Console.WriteLine("You chose to check out vehicle");
+            //    }
+            //    else
+            //    {
+            //        Console.WriteLine("Felaktig inmatning, försök igen.");
+            //        input = "";
+            //    }
+            //}
 
-            return input;
+            return input is "p" || input is "c";
         }
 
-        internal static string GetLetter()
+        internal static char GetRandomLetter()
         {
             Random random = new();
-            List<char> letters = new()
-            {
-                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-                'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
-            };
+            string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-            return letters[random.Next(letters.Count)].ToString(); ;
+            return letters[random.Next(letters.Length)];
+        }
+
+        internal static string AppendLetter(this String value)
+        {
+            Random random = new();
+            string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            value += letters[random.Next(letters.Length)];
+            return value;
         }
     }
 }

@@ -9,5 +9,10 @@ namespace DeluxeParking.Classes.Vehicles
     internal class Motorcycle : VehicleBase
     {
         public string Brand { get; set; }
+
+        public Motorcycle(string brand)
+        {
+            Brand = brand;
+        }
     }
 }
