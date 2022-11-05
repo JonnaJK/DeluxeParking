@@ -89,7 +89,8 @@ namespace DeluxeParking
                 VehiclesInQueue.Add(new Bus(numberOfSeats));
             }
 
-            // Check type in VehiclesInQueue
+            // Find parkingspot for vehicle, getvehicletype first to know where to find a spot
+
         }
 
         private void CheckOutVehicle()
