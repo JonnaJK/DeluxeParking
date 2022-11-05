@@ -17,13 +17,14 @@ namespace DeluxeParking
         private readonly Random _random = new();
 
         // Properties
-        public Dictionary<string, ParkingSpot> ParkingSpots { get; init; }
+        //public List<Dictionary<string, ParkingSpot>> ParkingSpots { get; set; }       // Changed to array instead
+        public ParkingSpot[] ParkingSpots { get; set; }
         public List<VehicleBase> VehiclesInQueue { get; set; } = new();
 
         // Contructor
         public ParkingHouse()
         {
-            ParkingSpots = new(_numberOfParkingSpots);
+            ParkingSpots = new ParkingSpot[_numberOfParkingSpots];
         }
 
         // Functions
@@ -90,7 +91,10 @@ namespace DeluxeParking
             }
 
             // Find parkingspot for vehicle, getvehicletype first to know where to find a spot
+            foreach (var spot in ParkingSpots)
+            {
 
+            }
         }
 
         private void CheckOutVehicle()
