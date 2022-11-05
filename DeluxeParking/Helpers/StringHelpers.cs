@@ -8,27 +8,9 @@ namespace DeluxeParking.Helpers
 {
     internal static class StringHelpers
     {
-        //
-        internal static bool ValidateInput(this string? input)
+        internal static bool ValidateInput(this string? input, string choice1, string choice2)
         {
-            //while (string.IsNullOrEmpty(input))
-            //{
-            //    if (input is "p")
-            //    {
-            //        Console.WriteLine("You chose to park vehicle");
-            //    }
-            //    else if (input is "c")
-            //    {
-            //        Console.WriteLine("You chose to check out vehicle");
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine("Felaktig inmatning, försök igen.");
-            //        input = "";
-            //    }
-            //}
-
-            return input is "p" || input is "c";
+            return input == choice1 || input == choice2;
         }
 
         internal static char GetRandomLetter()
@@ -39,13 +21,22 @@ namespace DeluxeParking.Helpers
             return letters[random.Next(letters.Length)];
         }
 
-        internal static string AppendLetter(this String value)
+        internal static string? ValidateAndGetCorrectInput(this string? input, string validateChoice1, string validateChoice2)
         {
-            Random random = new();
-            string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            while (!input.ValidateInput(validateChoice1, validateChoice2))
+            {
+                input = GUI.GetInput("Wrong input, try again.")?.ToLower();
+            }
+            return input;
+        }
 
-            value += letters[random.Next(letters.Length)];
-            return value;
+        internal static string CheckAndReturnWhenIsNotNullOrEmpty(string? input)
+        {
+            while (string.IsNullOrEmpty(input))
+            {
+                input = GUI.GetInput("Null or empty input, try again.");
+            }
+            return input;
         }
     }
 }

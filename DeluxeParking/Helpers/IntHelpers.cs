@@ -18,5 +18,15 @@ namespace DeluxeParking.Helpers
 
             return numbers[random.Next(numbers.Count)];
         }
+
+        internal static int TryToParseInt(string? input)
+        {
+            int number;
+            while (!int.TryParse(input, out number))
+            {
+                input = GUI.GetInput("Input have to be numbers, try again.");
+            }
+            return number;
+        }
     }
 }

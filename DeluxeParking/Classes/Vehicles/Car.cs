@@ -10,13 +10,9 @@ namespace DeluxeParking.Classes.Vehicles
     {
         public bool Electric { get; set; }
 
-        public Car(Random random)
+        public Car(bool isElectric)
         {
-            //int probability = random.Next(101);
-            //if (probability > 75)
-            //{
-            //    Electric = true;
-            //}
+            Electric = isElectric;
         }
     }
 }
