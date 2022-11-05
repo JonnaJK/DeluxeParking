@@ -13,7 +13,7 @@ namespace DeluxeParking
     internal class ParkingHouse
     {
         // Attributes
-        private readonly int _numberOfSpots = 15;
+        private readonly int _numberOfParkingSpots = 15;
         private readonly Random _random = new();
 
         // Properties
@@ -23,7 +23,7 @@ namespace DeluxeParking
         // Contructor
         public ParkingHouse()
         {
-            ParkingSpots = new(_numberOfSpots);
+            ParkingSpots = new(_numberOfParkingSpots);
         }
 
         // Functions
@@ -37,15 +37,17 @@ namespace DeluxeParking
             var input = Console.ReadLine()?.ToLower();
             while (!input.ValidateInput())
             {
-                input = GUI.GetInput("Felaktig inmatning, försök igen.")?.ToLower();
+                input = GUI.GetInput("Wrong input, try again.")?.ToLower();
             }
 
             switch (input)
             {
                 case "p":
+                    "You chose to park vehicle".OutgoingMessage();
                     ParkVehicle();
                     break;
                 case "c":
+                    GUI.OutgoingMessage("You chose to check out vehicle.");
                     CheckOutVehicle();
                     break;
                 default:

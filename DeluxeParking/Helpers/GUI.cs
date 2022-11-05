@@ -10,11 +10,16 @@ namespace DeluxeParking.Helpers
     {
         internal static string? GetInput(string message = "")
         {
-            if (string.IsNullOrEmpty(message))
-            {
+            //if (string.IsNullOrEmpty(message))
+            //{
                 Console.WriteLine(message);
-            }
+            //}
             return Console.ReadLine();
+        }
+
+        internal static void OutgoingMessage(this string message)
+        {
+            Console.WriteLine(message);
         }
     }
 }
