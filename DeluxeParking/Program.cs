@@ -1,4 +1,6 @@
-﻿using DeluxeParking.Helpers;
+﻿using DeluxeParking.Classes.Vehicles;
+using DeluxeParking.Helpers;
+using DeluxeParking.Interfaces;
 
 namespace DeluxeParking
 {

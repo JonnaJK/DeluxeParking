@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DeluxeParking.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,8 +11,10 @@ namespace DeluxeParking.Classes.Vehicles
     {
         public int NumberOfSeats { get; set; }
 
-        public Bus(int numberOfSeats)
+        public Bus()
         {
+            var input = GUI.GetInput("How many seats does the bus have?");
+            int numberOfSeats = IntHelpers.TryToParseInt(input);
             NumberOfSeats = numberOfSeats;
         }
     }

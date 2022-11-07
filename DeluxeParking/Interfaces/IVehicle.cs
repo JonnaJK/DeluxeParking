@@ -1,6 +1,6 @@
 ﻿namespace DeluxeParking.Interfaces
 {
-    internal interface IVehicleBase
+    internal interface IVehicle
     {
         string Color { get; set; }
         string RegistrationNumber { get; set; }

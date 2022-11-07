@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DeluxeParking.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,9 +11,12 @@ namespace DeluxeParking.Classes.Vehicles
     {
         public bool Electric { get; set; }
 
-        public Car(bool isElectric)
+        public Car()
         {
-            Electric = isElectric;
+            var input = GUI.GetInput("Is the car electric? Y/N");
+            input = StringHelpers.ValidateAndGetCorrectInput(input, "y", "n");
+            if (input is "y")
+                Electric = true;
         }
     }
 }

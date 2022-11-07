@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DeluxeParking.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,8 +11,10 @@ namespace DeluxeParking.Classes.Vehicles
     {
         public string Brand { get; set; }
 
-        public Motorcycle(string brand)
+        public Motorcycle()
         {
+            var brand = GUI.GetInput("What brand is the motorcycle?");
+            brand = StringHelpers.CheckAndReturnWhenIsNotNullOrEmpty(brand);
             Brand = brand;
         }
     }

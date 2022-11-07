@@ -8,7 +8,7 @@ using DeluxeParking.Interfaces;
 
 namespace DeluxeParking.Classes.Vehicles
 {
-    internal class VehicleBase : IVehicleBase
+    internal class VehicleBase : IVehicle
     {
         public string Type { get; init; }
         public string RegistrationNumber { get; set; }
@@ -19,6 +19,17 @@ namespace DeluxeParking.Classes.Vehicles
             Type = this.GetType().Name;
             RegistrationNumber = GetRegistrationNumber();
             Color = GetVehicleColorFromUser();
+        }
+
+        internal static void GetRandomVehicle(Random random, List<IVehicle> vehicles)
+        {
+            IVehicle vehicle = random.Next(3) switch
+            {
+                0 => new Car(),
+                1 => new Motorcycle(),
+                2 => new Bus(),
+            };
+            vehicles.Add(vehicle);
         }
 
         private static string GetVehicleColorFromUser()
