@@ -2,27 +2,17 @@
 using DeluxeParking.Classes.Vehicles;
 using DeluxeParking.Helpers;
 using DeluxeParking.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace DeluxeParking
 {
     internal class ParkingHouse
     {
-        // Attributes
         private readonly int _numberOfParkingSpots = 15;
         private readonly Random _random = new();
 
-        // Properties
         public List<ParkingSpot> ParkingSpots { get; set; }
         public List<IVehicle> VehiclesInQueue { get; set; } = new();
 
-        // Contructor
         public ParkingHouse()
         {
             ParkingSpots = new();
@@ -32,11 +22,12 @@ namespace DeluxeParking
             }
         }
 
-        // Functions
         public void Run()
         {
             while (true)
             {
+                WriteAllValues();
+                //DrawParkingHouse();
 
                 // Menu()
                 Console.WriteLine("Choose action:");
@@ -60,9 +51,8 @@ namespace DeluxeParking
                     default:
                         break;
                 }
-
-                // WriteAllValues
-                WriteAllValues();
+                Console.ReadKey();
+                Console.Clear();
             }
         }
 
@@ -78,7 +68,7 @@ namespace DeluxeParking
             {
                 if (VehiclesInQueue[i] is Car car && emptySpots.Count > 0)
                 {
-                    emptySpots[0].Vehicles.Add(car);
+                    emptySpots[0].ParkedVehicles.Add(car);
                     emptySpots[0].Size += 2;
                     emptySpots[0].IsEmpty = false;
                     VehiclesInQueue.Remove(car);
@@ -88,14 +78,14 @@ namespace DeluxeParking
                 {
                     if (halfEmptySpots.Count > 0)
                     {
-                        halfEmptySpots[0].Vehicles.Add(motorcycle);
+                        halfEmptySpots[0].ParkedVehicles.Add(motorcycle);
                         halfEmptySpots[0].Size++;
                         halfEmptySpots[0].IsEmpty = false;
                         VehiclesInQueue.Remove(motorcycle);
                     }
                     else if (emptySpots.Count > 0)
                     {
-                        emptySpots[0].Vehicles.Add(motorcycle);
+                        emptySpots[0].ParkedVehicles.Add(motorcycle);
                         emptySpots[0].Size++;
                         emptySpots[0].IsEmpty = false;
                         VehiclesInQueue.Remove(motorcycle);
@@ -104,10 +94,10 @@ namespace DeluxeParking
                 }
                 else if (VehiclesInQueue[i] is Bus bus && emptySpots.Count >= 2)
                 {
-                    emptySpots[0].Vehicles.Add(bus);
+                    emptySpots[0].ParkedVehicles.Add(bus);
                     emptySpots[0].Size += 2;
                     emptySpots[0].IsEmpty = false;
-                    emptySpots[1].Vehicles.Add(bus);
+                    emptySpots[1].ParkedVehicles.Add(bus);
                     emptySpots[1].Size += 2;
                     emptySpots[1].IsEmpty = false;
                     VehiclesInQueue.Remove(bus);
@@ -118,14 +108,59 @@ namespace DeluxeParking
 
         private void CheckOutVehicle()
         {
+            var input = GUI.GetInput("Enter registrationnumber to check out")?.ToUpper();
+            input = StringHelpers.CheckAndReturnWhenIsNotNullOrEmpty(input);
+
+
+            // TODO: Dela upp i tre olika metoder beroende på Vehicle type.
+            // TODO: Partition function/logic to look for gaps of 2, to not place motorcycle or car in.
+            var test = ParkingSpots.Select(x => x.ParkedVehicles.FirstOrDefault(y => y.RegistrationNumber == input));
+
+            var isSuccess = false;
+            for (int i = 0; i < ParkingSpots.Count; i++)
+            {
+                for (int j = 0; j < ParkingSpots[i].ParkedVehicles.Count; j++)
+                {
+                    if (ParkingSpots[i].ParkedVehicles[j].RegistrationNumber == input)
+                    {
+                        if (ParkingSpots[i].ParkedVehicles[j] is Car car)
+                        {
+                            ParkingSpots[i].ParkedVehicles.Remove(car);
+                            ParkingSpots[i].Size = 0;
+                            ParkingSpots[i].IsEmpty = true;
+                            isSuccess = true;
+                            break;
+                        }
+                        else if (ParkingSpots[i].ParkedVehicles[j] is Motorcycle motorcycle)
+                        {
+                            ParkingSpots[i].ParkedVehicles.Remove(motorcycle);
+                            ParkingSpots[i].Size--;
+                            if (ParkingSpots[i].Size is 0)
+                                ParkingSpots[i].IsEmpty = true;
+                            isSuccess = true;
+                            break;
+                        }
+                        else if (ParkingSpots[i].ParkedVehicles[j] is Bus bus)
+                        {
+                            // TODO: Does not handle if [i] is the last parkingspot...
+                            ParkingSpots[i].ParkedVehicles.Remove(bus);
+                            ParkingSpots[i].IsEmpty = true;
+                            ParkingSpots[i].Size = 0;
+                            ParkingSpots[i + 1].ParkedVehicles.Remove(bus);
+                            ParkingSpots[i + 1].IsEmpty = true;
+                            ParkingSpots[i + 1].Size = 0;
+                            isSuccess = true;
+                            break;
+                        }
+                    }
+                }
+                if (isSuccess)
+                {
+                    break;
+                }
+            }
         }
-
-        private static void CreateParkingSpots()
-        {
-
-        }
-
-        private void WriteAllValues()
+        private void WriteAllValues2()
         {
             var index = 1;
             foreach (var parkingspot in ParkingSpots)
@@ -133,30 +168,30 @@ namespace DeluxeParking
                 Console.Write($"Spot {index}:");
                 if (!parkingspot.IsEmpty)
                 {
-                    for (int i = 0; i < parkingspot.Vehicles.Count; i++)
+                    for (int i = 0; i < parkingspot.ParkedVehicles.Count; i++)
                     {
-                        if (parkingspot.Vehicles[i] is Car car)
+                        if (parkingspot.ParkedVehicles[i] is Car car)
                         {
                             Console.Write("\t\tType: " + car.Type);
                             Console.Write("\tRegNr: " + car.RegistrationNumber);
                             Console.Write("\tColor: " + car.Color);
                             Console.Write("\tElectric: " + car.Electric);
                         }
-                        else if (parkingspot.Vehicles[i] is Motorcycle motorcycle)
+                        else if (parkingspot.ParkedVehicles[i] is Motorcycle motorcycle)
                         {
                             Console.Write("\t\tType: " + motorcycle.Type);
                             Console.Write("\tRegNr: " + motorcycle.RegistrationNumber);
                             Console.Write("\tColor: " + motorcycle.Color);
                             Console.Write("\tBrand: " + motorcycle.Brand);
                         }
-                        else if (parkingspot.Vehicles[i] is Bus bus)
+                        else if (parkingspot.ParkedVehicles[i] is Bus bus)
                         {
                             Console.Write("\t\tType: " + bus.Type);
                             Console.Write("\tRegNr: " + bus.RegistrationNumber);
                             Console.Write("\tColor: " + bus.Color);
                             Console.Write("\tNr of seats: " + bus.NumberOfSeats);
                         }
-                        if (parkingspot.Vehicles.Count > 1)
+                        if (parkingspot.ParkedVehicles.Count > 1)
                         {
                             Console.WriteLine();
                         }
@@ -185,6 +220,60 @@ namespace DeluxeParking
 
             Console.ReadKey();
             Console.Clear();
+        }
+
+        private void WriteAllValues()
+        {
+            // TODO: Add ID (1-15) to parkingsspot
+            var index = 1;
+            // TODO: change to for instead of foreach
+            foreach (var parkingspot in ParkingSpots)
+            {
+                if (!parkingspot.IsEmpty)
+                {
+                    for (int i = 0; i < parkingspot.ParkedVehicles.Count; i++)
+                    {
+                        var vehicle = parkingspot.ParkedVehicles[i];
+                        string parkingspots = index.ToString().PadLeft(2, '0') + ": ";
+                        string message = vehicle.Type.PadRight(10);
+                        message += "\tRegNr: " + vehicle.RegistrationNumber;
+                        message += "\tColor: " + vehicle.Color;
+                        if (vehicle is Car car)
+                        {
+                            message += "\t" + (car.Electric ? "Electric" : "Not electric");
+                        }
+                        else if (vehicle is Motorcycle motorcycle)
+                        {
+                            message += "\t" + motorcycle.Brand;
+                        }
+                        else if (vehicle is Bus bus)
+                        {
+                            //parkingspots = $"{index}-{index + 1}:";
+                            message += "\t" + bus.NumberOfSeats + " seats";
+                            //index++;
+                        }
+                        Console.WriteLine(parkingspots.PadRight(7) + message);
+                    }
+                }
+                index++;
+            }
+            index = 1;
+            if (VehiclesInQueue.Count > 0)
+            {
+                for (int i = 0; i < VehiclesInQueue.Count; i++)
+                {
+                    Console.WriteLine();
+                    Console.Write($"Queue spot: {index}: ");
+                    Console.Write(VehiclesInQueue[i].Type + "\t");
+                    Console.Write(VehiclesInQueue[i].RegistrationNumber);
+                    index++;
+                }
+                Console.WriteLine();
+            }
+            else
+            {
+                Console.WriteLine("Queue is empty.");
+            }
         }
     }
 }

@@ -13,9 +13,10 @@ namespace DeluxeParking.Classes.Vehicles
 
         public Bus()
         {
-            var input = GUI.GetInput("How many seats does the bus have?");
-            int numberOfSeats = IntHelpers.TryToParseInt(input);
-            NumberOfSeats = numberOfSeats;
+            NumberOfSeats = 23;
+            //var input = GUI.GetInput("How many seats does the bus have?");
+            //int numberOfSeats = IntHelpers.TryToParseInt(input);
+            //NumberOfSeats = numberOfSeats;
         }
     }
 }

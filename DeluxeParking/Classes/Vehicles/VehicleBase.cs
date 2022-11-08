@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DeluxeParking.Helpers;
+﻿using DeluxeParking.Helpers;
 using DeluxeParking.Interfaces;
 
 namespace DeluxeParking.Classes.Vehicles
@@ -18,7 +13,7 @@ namespace DeluxeParking.Classes.Vehicles
         {
             Type = this.GetType().Name;
             RegistrationNumber = GetRegistrationNumber();
-            Color = GetVehicleColorFromUser();
+            Color = "Red";//GetVehicleColorFromUser();
         }
 
         internal static void GetRandomVehicle(Random random, List<IVehicle> vehicles)

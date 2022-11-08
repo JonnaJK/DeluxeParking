@@ -13,9 +13,10 @@ namespace DeluxeParking.Classes.Vehicles
 
         public Motorcycle()
         {
-            var brand = GUI.GetInput("What brand is the motorcycle?");
-            brand = StringHelpers.CheckAndReturnWhenIsNotNullOrEmpty(brand);
-            Brand = brand;
+            Brand = "Yamaha";
+            //var brand = GUI.GetInput("What brand is the motorcycle?");
+            //brand = StringHelpers.CheckAndReturnWhenIsNotNullOrEmpty(brand);
+            //Brand = brand;
         }
     }
 }

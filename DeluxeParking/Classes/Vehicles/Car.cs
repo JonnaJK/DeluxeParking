@@ -13,10 +13,11 @@ namespace DeluxeParking.Classes.Vehicles
 
         public Car()
         {
-            var input = GUI.GetInput("Is the car electric? Y/N");
-            input = StringHelpers.ValidateAndGetCorrectInput(input, "y", "n");
-            if (input is "y")
-                Electric = true;
+            Electric = true;
+            //var input = GUI.GetInput("Is the car electric? Y/N");
+            //input = StringHelpers.ValidateAndGetCorrectInput(input, "y", "n");
+            //if (input is "y")
+            //    Electric = true;
         }
     }
 }
