@@ -16,9 +16,9 @@ namespace DeluxeParking
         public ParkingHouse()
         {
             ParkingSpots = new();
-            for (int i = 0; i < _numberOfParkingSpots; i++)
+            for (int i = 1; i <= _numberOfParkingSpots; i++)
             {
-                ParkingSpots.Add(new ParkingSpot());
+                ParkingSpots.Add(new ParkingSpot(i));
             }
         }
 
@@ -160,6 +160,7 @@ namespace DeluxeParking
                 }
             }
         }
+        // How I had it first.
         private void WriteAllValues2()
         {
             var index = 1;
@@ -224,8 +225,6 @@ namespace DeluxeParking
 
         private void WriteAllValues()
         {
-            // TODO: Add ID (1-15) to parkingsspot
-            var index = 1;
             // TODO: change to for instead of foreach
             foreach (var parkingspot in ParkingSpots)
             {
@@ -234,7 +233,7 @@ namespace DeluxeParking
                     for (int i = 0; i < parkingspot.ParkedVehicles.Count; i++)
                     {
                         var vehicle = parkingspot.ParkedVehicles[i];
-                        string parkingspots = index.ToString().PadLeft(2, '0') + ": ";
+                        string parkingspots = parkingspot.ID.ToString().PadLeft(2, '0') + ": ";
                         string message = vehicle.Type.PadRight(10);
                         message += "\tRegNr: " + vehicle.RegistrationNumber;
                         message += "\tColor: " + vehicle.Color;
@@ -255,9 +254,8 @@ namespace DeluxeParking
                         Console.WriteLine(parkingspots.PadRight(7) + message);
                     }
                 }
-                index++;
             }
-            index = 1;
+            var index = 1;
             if (VehiclesInQueue.Count > 0)
             {
                 for (int i = 0; i < VehiclesInQueue.Count; i++)
