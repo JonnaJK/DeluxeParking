@@ -2,14 +2,14 @@
 
 namespace DeluxeParking.Classes
 {
-    internal class ParkingSpot
+    internal class Parkingspot
     {
         public int ID { get; set; }
         public int Size { get; set; }
         public bool IsEmpty { get; set; } = true;
         public List<IVehicle> ParkedVehicles { get; set; } = new();
 
-        public ParkingSpot(int id)
+        public Parkingspot(int id)
         {
             ID = id;
         }
