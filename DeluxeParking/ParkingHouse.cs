@@ -2,6 +2,7 @@
 using DeluxeParking.Classes.Vehicles;
 using DeluxeParking.Helpers;
 using DeluxeParking.Interfaces;
+using System.Drawing;
 
 namespace DeluxeParking
 {
@@ -30,7 +31,7 @@ namespace DeluxeParking
                 GUI.WriteValues(Parkingspots, VehiclesInQueue);
 
                 // Menu()
-                Console.WriteLine(  "Choose action:\n" +
+                Console.WriteLine("Choose action:\n" +
                                     "[P] - Park new vehicle\n" +
                                     "[C] - Check out existing vehicle\n");
 
@@ -60,6 +61,10 @@ namespace DeluxeParking
         {
             // Get random vehicle and add the unique properties from user to vehicle
             VehicleBase.GetRandomVehicle(_random, VehiclesInQueue);
+
+            // Get partitioned List<List<Parkingspot>>
+            var partitionedParkingspots = Partition();
+            var emptyParkingSpotsNotForBus = partitionedParkingspots.FirstOrDefault(x => x.Count % 2 == 0);
 
             // Find parkingspot for vehicle, getvehicletype first to know where to find a spot
             var emptySpots = Parkingspots.Where(x => x.IsEmpty).ToList();
@@ -104,6 +109,39 @@ namespace DeluxeParking
                     break;
                 }
             }
+        }
+
+        private List<List<Parkingspot>> Partition()
+        
+        {
+            List<List<Parkingspot>> partitioned = new();
+            List<Parkingspot> bucket = new();
+            var endedHere = false;
+            var last = Parkingspots[0];
+            bucket.Add(last);
+            for (int i = 1; i < Parkingspots.Count; i++)
+            {
+                var current = Parkingspots[i];
+                if (last.IsEmpty == current.IsEmpty)
+                {
+                    bucket.Add(current);
+                    last = current;
+                    endedHere = true;
+                }
+                else
+                {
+                    partitioned.Add(bucket);
+                    last = current;
+                    bucket = new();
+                    bucket.Add(last);
+                    endedHere = true;
+                }
+            }
+            if (endedHere)
+            {
+                partitioned.Add(bucket);
+            }
+            return partitioned;
         }
 
         private void CheckOutVehicle()
