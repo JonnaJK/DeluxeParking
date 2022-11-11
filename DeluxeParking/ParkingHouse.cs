@@ -32,87 +32,126 @@ namespace DeluxeParking
 
                 // Menu()
                 Console.WriteLine("Choose action:\n" +
-                                    "[P] - Park new vehicle\n" +
+                                    "[G] - Get new Vehicle in queue to parking\n" +
+                                    "[P] - Park vehicle from queue\n" +
                                     "[C] - Check out existing vehicle\n");
 
                 // Eventuellt göra detta till en egen funktion eftersom den återupprepas.
                 var input = Console.ReadLine()?.ToLower();
-                input = StringHelpers.ValidateAndGetCorrectInput(input, "p", "c");
+                input = StringHelpers.ValidateAndGetCorrectInput(input, "g", "p", "c");
 
                 switch (input)
                 {
+                    case "g":
+                        VehicleBase.GetRandomVehicle(_random, VehiclesInQueue);
+                        break;
                     case "p":
-                        Console.WriteLine("You chose to park vehicle");
                         ParkVehicle();
                         break;
                     case "c":
-                        Console.WriteLine("You chose to check out vehicle.");
                         CheckOutVehicle();
                         break;
                     default:
                         break;
                 }
-                Console.ReadKey();
                 Console.Clear();
             }
         }
 
         private void ParkVehicle()
         {
-            // Get random vehicle and add the unique properties from user to vehicle
-            VehicleBase.GetRandomVehicle(_random, VehiclesInQueue);
-
-            // Get partitioned List<List<Parkingspot>>
             var partitionedParkingspots = Partition();
-            var emptyParkingSpotsNotForBus = partitionedParkingspots.FirstOrDefault(x => x.Count % 2 == 0);
-
-            // Find parkingspot for vehicle, getvehicletype first to know where to find a spot
+            var emptySpotsNotForBus = partitionedParkingspots.FirstOrDefault(x => x.Count % 2 != 0 && x.TrueForAll(x => x.IsEmpty));
+            //var emptyParkingspotForBus = partitionedParkingspots.FirstOrDefault(x => x.Count % 2 == 0 && x.TrueForAll(x => x.IsEmpty));
             var emptySpots = Parkingspots.Where(x => x.IsEmpty).ToList();
             var halfEmptySpots = Parkingspots.Where(x => x.Size is 1).ToList();
-            for (int i = 0; i < VehiclesInQueue.Count; i++)
+            var isSuccessfull = false;
+            // Find parkingspot for vehicle, getvehicletype first to know where to find a spot
+            if (VehiclesInQueue.Count is 0)
             {
-                if (VehiclesInQueue[i] is Car car && emptySpots.Count > 0)
+                Console.WriteLine("There is no vehicles in queue to park");
+            }
+            else
+            {
+                for (int i = 0; i < VehiclesInQueue.Count; i++)
                 {
-                    emptySpots[0].ParkedVehicles.Add(car);
-                    emptySpots[0].Size += 2;
-                    emptySpots[0].IsEmpty = false;
-                    VehiclesInQueue.Remove(car);
-                    break;
-                }
-                else if (VehiclesInQueue[i] is Motorcycle motorcycle)
-                {
-                    if (halfEmptySpots.Count > 0)
+                    var vehicle = VehiclesInQueue[i];
+                    if (vehicle is Car car)
                     {
-                        halfEmptySpots[0].ParkedVehicles.Add(motorcycle);
-                        halfEmptySpots[0].Size++;
-                        halfEmptySpots[0].IsEmpty = false;
-                        VehiclesInQueue.Remove(motorcycle);
+                        if (emptySpotsNotForBus?.Count > 0)
+                        {
+                            emptySpotsNotForBus[0].ParkedVehicles.Add(car);
+                            emptySpotsNotForBus[0].Size = 2;
+                            emptySpotsNotForBus[0].IsEmpty = false;
+                            VehiclesInQueue.Remove(car);
+                            isSuccessfull = true;
+                        }
+                        else if (emptySpots?.Count > 0)
+                        {
+                            emptySpots[0].ParkedVehicles.Add(car);
+                            emptySpots[0].Size = 2;
+                            emptySpots[0].IsEmpty = false;
+                            VehiclesInQueue.Remove(car);
+                            isSuccessfull = true;
+                        }
                     }
-                    else if (emptySpots.Count > 0)
+                    else if (vehicle is Motorcycle motorcycle)
                     {
-                        emptySpots[0].ParkedVehicles.Add(motorcycle);
-                        emptySpots[0].Size++;
-                        emptySpots[0].IsEmpty = false;
-                        VehiclesInQueue.Remove(motorcycle);
+                        if (halfEmptySpots.Count > 0)
+                        {
+                            halfEmptySpots[0].ParkedVehicles.Add(motorcycle);
+                            halfEmptySpots[0].Size++;
+                            halfEmptySpots[0].IsEmpty = false;
+                            VehiclesInQueue.Remove(motorcycle);
+                            isSuccessfull = true;
+                        }
+                        else if (emptySpotsNotForBus?.Count > 0)
+                        {
+                            emptySpotsNotForBus[0].ParkedVehicles.Add(motorcycle);
+                            emptySpotsNotForBus[0].Size++;
+                            emptySpotsNotForBus[0].IsEmpty = false;
+                            VehiclesInQueue.Remove(motorcycle);
+                            isSuccessfull = true;
+                        }
+                        else if (emptySpots?.Count > 0)
+                        {
+                            emptySpots[0].ParkedVehicles.Add(motorcycle);
+                            emptySpots[0].Size = 2;
+                            emptySpots[0].IsEmpty = false;
+                            VehiclesInQueue.Remove(motorcycle);
+                            isSuccessfull = true;
+                        }
                     }
-                    break;
+                    else if (vehicle is Bus bus && emptySpots?.Count >= 2)
+                    {
+                        for (int j = 0; j < emptySpots.Count; j++)
+                        {
+                            if (emptySpots[j].ID == emptySpots[j + 1].ID - 1)
+                            {
+                                emptySpots[j].ParkedVehicles.Add(bus);
+                                emptySpots[j].Size = 2;
+                                emptySpots[j].IsEmpty = false;
+                                emptySpots[j + 1].ParkedVehicles.Add(bus);
+                                emptySpots[j + 1].Size = 2;
+                                emptySpots[j + 1].IsEmpty = false;
+                                VehiclesInQueue.Remove(bus);
+                                isSuccessfull = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (isSuccessfull)
+                    {
+                        Console.WriteLine($"You hace successfully parked the {vehicle.Type}, with registration number {vehicle.RegistrationNumber}.");
+                        break;
+                    }
                 }
-                else if (VehiclesInQueue[i] is Bus bus && emptySpots.Count >= 2)
-                {
-                    emptySpots[0].ParkedVehicles.Add(bus);
-                    emptySpots[0].Size += 2;
-                    emptySpots[0].IsEmpty = false;
-                    emptySpots[1].ParkedVehicles.Add(bus);
-                    emptySpots[1].Size += 2;
-                    emptySpots[1].IsEmpty = false;
-                    VehiclesInQueue.Remove(bus);
-                    break;
-                }
+                if (!isSuccessfull)
+                    Console.WriteLine("Unfortunately there were no available parkingspots for the vehicles in queue");
             }
         }
 
         private List<List<Parkingspot>> Partition()
-        
         {
             List<List<Parkingspot>> partitioned = new();
             List<Parkingspot> bucket = new();
@@ -151,7 +190,6 @@ namespace DeluxeParking
 
 
             // TODO: Dela upp i tre olika metoder beroende på Vehicle type.
-            // TODO: Partition function/logic to look for gaps of 2, to not place motorcycle or car in.
             var test = Parkingspots.Select(x => x.ParkedVehicles.FirstOrDefault(y => y.RegistrationNumber == input));
 
             var isSuccess = false;
@@ -198,6 +236,7 @@ namespace DeluxeParking
                 }
             }
         }
+
         // How I had it first.
         private void WriteAllValues2()
         {
