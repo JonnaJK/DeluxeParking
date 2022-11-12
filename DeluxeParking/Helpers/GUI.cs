@@ -45,6 +45,10 @@ namespace DeluxeParking.Helpers
                             Console.WriteLine(parkingspotID.PadRight(7) + message);
                     }
                 }
+                else
+                {
+                    Console.WriteLine(parkingspots[i].ID.ToString().PadLeft(2, '0') + ": ");
+                }
             }
             var index = 1;
             if (vehiclesInQueue.Count > 0)
