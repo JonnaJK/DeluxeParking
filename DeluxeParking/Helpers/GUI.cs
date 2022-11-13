@@ -18,7 +18,7 @@ namespace DeluxeParking.Helpers
             return Console.ReadLine()?.ToLower();
         }
 
-        internal static void WriteValues(List<Parkingspot> parkingspots, List<IVehicle> vehiclesInQueue)
+        internal static void DrawParkingHouse(List<Parkingspot> parkingspots, List<IVehicle> vehiclesInQueue)
         {
             for (int i = 0; i < parkingspots.Count; i++)
             {

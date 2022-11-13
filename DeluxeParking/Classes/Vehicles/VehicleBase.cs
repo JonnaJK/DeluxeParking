@@ -8,6 +8,7 @@ namespace DeluxeParking.Classes.Vehicles
         public string Type { get; init; }
         public string RegistrationNumber { get; set; }
         public string Color { get; set; }
+        public DateTimeOffset StartTime { get; set; }
 
         public VehicleBase()
         {
