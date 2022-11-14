@@ -5,6 +5,6 @@
         string Color { get; set; }
         string RegistrationNumber { get; set; }
         string Type { get; init; }
-        DateTimeOffset StartTime { get; set; }
+        string GetUniqueProperty();
     }
 }

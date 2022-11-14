@@ -2,24 +2,20 @@
 using DeluxeParking.Classes.Vehicles;
 using DeluxeParking.Helpers;
 using DeluxeParking.Interfaces;
-using System.Drawing;
-using System.Runtime.CompilerServices;
 
 namespace DeluxeParking
 {
     internal class ParkingHouse
     {
-        // Fundera om det är bättre att ha detta som en privat klass variabel eller om jag ska ha det som en inparameter i ParkingHouse konstruktorn???
-        private readonly int _numberOfParkingSpots = 30;
         private readonly Random _random = new();
 
         public List<Parkingspot> Parkingspots { get; set; }
         public List<IVehicle> VehiclesInQueue { get; set; } = new();
 
-        public ParkingHouse()
+        public ParkingHouse(int numberOfParkingspots)
         {
             Parkingspots = new();
-            for (int i = 1; i <= _numberOfParkingSpots; i++)
+            for (int i = 1; i <= numberOfParkingspots; i++)
             {
                 Parkingspots.Add(new Parkingspot(i));
             }
@@ -29,26 +25,25 @@ namespace DeluxeParking
         {
             while (true)
             {
-                // DrawParkingHouse();
                 GUI.DrawParkingHouse(Parkingspots, VehiclesInQueue);
 
                 Menu();
 
+                Console.ReadKey();
                 Console.Clear();
             }
         }
 
+        #region Done
         private void Menu()
         {
-            // Menu()
             Console.WriteLine("Choose action:\n" +
                                 "[G] - Get new Vehicle in queue to parking\n" +
                                 "[P] - Park vehicle from queue\n" +
                                 "[C] - Check out existing vehicle\n");
 
-            // Eventuellt göra detta till en egen funktion eftersom den återupprepas.
             var input = Console.ReadLine()?.ToLower();
-            input = StringHelpers.ValidateAndGetCorrectInput(input, "g", "p", "c");
+            input = StringHelpers.GetAndValidateInput(input, "g", "p", "c");
 
             switch (input)
             {
@@ -56,7 +51,7 @@ namespace DeluxeParking
                     VehicleBase.GetRandomVehicle(_random, VehiclesInQueue);
                     break;
                 case "p":
-                    ManageParking();
+                    HandleVehicleQueue();
                     break;
                 case "c":
                     ManageCheckOut();
@@ -66,238 +61,177 @@ namespace DeluxeParking
             }
         }
 
-        // TODO: Fix all Console WriteLines to something in GUI or something else
-        // TODO: Change functionname
-        private void ManageParking()
+        private void HandleVehicleQueue()
         {
-            var isSuccessfull = false;
-
-            // Find parkingspot for vehicle, getvehicletype first to know where to find a spot
-            if (VehiclesInQueue.Count > 0)
+            if (VehiclesInQueue.Count == 0)
             {
-                for (int i = 0; i < VehiclesInQueue.Count; i++)
+                Console.WriteLine(  "There are no vehicles in the queue." +
+                                    "\nPress enter to continue");
+                return;
+            }
+
+            var isSuccessfull = false;
+            for (int i = 0; i < VehiclesInQueue.Count; i++)
+            {
+                var vehicle = VehiclesInQueue[i];
+                isSuccessfull = TryToAssignVehicleToParking(vehicle);
+                if (isSuccessfull)
                 {
-                    var vehicle = VehiclesInQueue[i];
-                    isSuccessfull = TryToAssign(vehicle);
-                    if (isSuccessfull)
-                    {
-                        Console.WriteLine($"You hace successfully parked the {vehicle.Type}, with registration number {vehicle.RegistrationNumber}.");
-                        Console.WriteLine();
-                        break;
-                    }
-                }
-                if (!isSuccessfull)
-                {
-                    Console.WriteLine("Unfortunately there were no available parkingspots for the vehicles in queue");
-                    Console.WriteLine();
+                    Console.WriteLine(  $"You have successfully parked the {vehicle.Type}, {vehicle.RegistrationNumber}." +
+                                        $"\nPress enter to continue");
+                    break;
                 }
             }
-            else
+            if (!isSuccessfull)
             {
-                Console.WriteLine("There is no vehicles in queue to park");
+                Console.WriteLine(  "No suitable parkingspots for the vehicles in the queue." +
+                                    "\nPress enter to continue");
             }
         }
 
-        private bool TryToAssign<T>(T vehicle)
+        private bool TryToAssignVehicleToParking(IVehicle vehicle)
         {
-            // Fundera om det är bättre att skicka med bool som inparameter istället för en localvariabel som heter samma
-            // Fundera även på om det är bättre att return true/false i de nästlade if, else if satserna istället för en till funktion som returnerar en bool, se exempel
-            var partitionedParkingspots = Partition();
-            var emptyParkingspotsNotForBus = partitionedParkingspots.FirstOrDefault(x => x.Count % 2 != 0 && x.TrueForAll(x => x.IsEmpty));
-            var emptyParkingspots = Parkingspots.Where(x => x.IsEmpty).ToList();
+            var partitionedParkingspots = ListHelpers.Partition(Parkingspots);
 
             if (vehicle is Car car)
             {
-                if (emptyParkingspotsNotForBus?.Count > 0)
-                {
-                    // Exempel från rad 95
-                    //isSuccessfull = Assign(car, emptyParkingspotsNotForBus);
-                    Assign(car, emptyParkingspotsNotForBus);
-                    return true;
-                }
-                else if (emptyParkingspots?.Count > 0)
-                {
-                    Assign(car, emptyParkingspots);
-                    return true;
-                }
+                return HandleCarAssignment(car, partitionedParkingspots);
             }
             else if (vehicle is Motorcycle motorcycle)
             {
-                var halfEmptyParkingspots = Parkingspots.Where(x => x.Size is 1).ToList();
+                return HandleMotorcycleAssignment(motorcycle, partitionedParkingspots);
 
-                if (halfEmptyParkingspots.Count > 0)
-                {
-                    Assign(motorcycle, halfEmptyParkingspots);
-                    return true;
-                }
-                else if (emptyParkingspotsNotForBus?.Count > 0)
-                {
-                    Assign(motorcycle, emptyParkingspotsNotForBus);
-                    return true;
-                }
-                else if (emptyParkingspots?.Count > 0)
-                {
-                    Assign(motorcycle, emptyParkingspots);
-                    return true;
-                }
             }
-            else if (vehicle is Bus bus && emptyParkingspots.Count > 1)
+            else if (vehicle is Bus bus)
             {
-                Assign(bus, emptyParkingspots);
+                return HandleBusAssignment(bus);
+            }
+            return false;
+        }
+
+        private bool HandleCarAssignment(Car car, List<List<Parkingspot>> partitionedParkingspots)
+        {
+            var primaryParkingspots = partitionedParkingspots.FirstOrDefault(x => x.Count % 2 != 0 && x.TrueForAll(x => x.Size == 0));
+            var secondaryParkingspots = Parkingspots.Where(x => x.Size == 0).ToList();
+
+            if (primaryParkingspots?.Count > 0)
+            {
+                AssignCarToParkingspot(car, primaryParkingspots);
+                return true;
+            }
+            else if (secondaryParkingspots?.Count > 0)
+            {
+                AssignCarToParkingspot(car, secondaryParkingspots);
                 return true;
             }
             return false;
         }
 
-        private List<List<Parkingspot>> Partition()
+        private bool HandleMotorcycleAssignment(Motorcycle motorcycle, List<List<Parkingspot>> partitionedParkingspots)
         {
-            List<List<Parkingspot>> partitioned = new();
-            List<Parkingspot> bucket = new();
-            var endedHere = false;
-            var last = Parkingspots[0];
-            bucket.Add(last);
-            for (int i = 1; i < Parkingspots.Count; i++)
+            var primaryParkingspots = Parkingspots.Where(x => x.Size == 1).ToList();
+            var secondaryParkingspots = partitionedParkingspots.FirstOrDefault(x => x.Count % 2 != 0 && x.TrueForAll(x => x.Size == 0));
+            var lastResortParkingspots = Parkingspots.Where(x => x.Size == 0).ToList();
+
+            if (primaryParkingspots.Count > 0)
             {
-                var current = Parkingspots[i];
-                if (last.IsEmpty == current.IsEmpty)
-                {
-                    bucket.Add(current);
-                    last = current;
-                    endedHere = true;
-                }
-                else
-                {
-                    partitioned.Add(bucket);
-                    last = current;
-                    bucket = new();
-                    bucket.Add(last);
-                    endedHere = true;
-                }
+                AssignMotorcycleToParkingspot(motorcycle, primaryParkingspots);
+                return true;
             }
-            if (endedHere)
+            else if (secondaryParkingspots?.Count > 0)
             {
-                partitioned.Add(bucket);
+                AssignMotorcycleToParkingspot(motorcycle, secondaryParkingspots);
+                return true;
             }
-            return partitioned;
+            else if (lastResortParkingspots?.Count > 0)
+            {
+                AssignMotorcycleToParkingspot(motorcycle, lastResortParkingspots);
+                return true;
+            }
+            return false;
         }
 
-        // Ska jag ändra till ParkCar, ParkMotorcycle, ParkBus???? alternativt en icke generisk overload??
-        private void Assign<T>(T vehicle, List<Parkingspot> emptyParkingspots)
+        private bool HandleBusAssignment(Bus bus)
         {
-            if (vehicle is Car car)
-            {
-                emptyParkingspots[0].ParkedVehicles.Add(car);
-                car.StartTime = DateTime.Now;
-                emptyParkingspots[0].Size = 2;
-                VehiclesInQueue.Remove(car);
-            }
-            else if (vehicle is Motorcycle motorcycle)
-            {
-                emptyParkingspots[0].ParkedVehicles.Add(motorcycle);
-                motorcycle.StartTime = DateTime.Now;
-                emptyParkingspots[0].Size++;
-                VehiclesInQueue.Remove(motorcycle);
-            }
-            else if (vehicle is Bus bus)
+            var emptyParkingspots = Parkingspots.Where(x => x.Size == 0).ToList();
+            if (emptyParkingspots.Count > 1)
             {
                 for (int i = 0; i < emptyParkingspots.Count; i++)
                 {
-                    if (emptyParkingspots[i].ID == emptyParkingspots[i + 1].ID - 1)
+                    if (emptyParkingspots[i].Id == emptyParkingspots[i + 1].Id - 1)
                     {
-                        emptyParkingspots[i].ParkedVehicles.Add(bus);
-                        emptyParkingspots[i].Size = 2;
-
-                        emptyParkingspots[i + 1].ParkedVehicles.Add(bus);
-                        bus.StartTime = DateTime.Now;
-                        emptyParkingspots[i + 1].Size = 2;
-                        emptyParkingspots[i + 1].IsEmpty = false;
-                        VehiclesInQueue.Remove(bus);
+                        AssignBusToParkingspot(bus, emptyParkingspots, i);
                         break;
                     }
                 }
+                return true;
             }
-            emptyParkingspots[0].IsEmpty = false;
+            else
+                return false;
+        }
+
+        private void AssignCarToParkingspot(Car car, List<Parkingspot> emptyParkingspots)
+        {
+            emptyParkingspots[0].StartTime = DateTime.Now;
+            emptyParkingspots[0].ParkedVehicles.Add(car);
+            emptyParkingspots[0].Size = 2;
+            VehiclesInQueue.Remove(car);
+        }
+
+        private void AssignMotorcycleToParkingspot(Motorcycle motorcycle, List<Parkingspot> matchingParkingspots)
+        {
+            matchingParkingspots[0].StartTime = DateTime.Now;
+            matchingParkingspots[0].ParkedVehicles.Add(motorcycle);
+            matchingParkingspots[0].Size++;
+            VehiclesInQueue.Remove(motorcycle);
+        }
+
+        private void AssignBusToParkingspot(Bus bus, List<Parkingspot> emptyParkingspots, int index)
+        {
+            emptyParkingspots[index].StartTime = DateTime.Now;
+            emptyParkingspots[index].ParkedVehicles.Add(bus);
+            emptyParkingspots[index].Size = 2;
+            emptyParkingspots[index + 1].ParkedVehicles.Add(bus);
+            emptyParkingspots[index + 1].Size = 2;
+            VehiclesInQueue.Remove(bus);
         }
 
         private void ManageCheckOut()
         {
-            var input = GUI.GetInput("Enter registrationnumber to check out")?.ToUpper();
-            input = StringHelpers.CheckAndReturnWhenIsNotNullOrEmpty(input);
+            var registrationNumber = GUI.GetInput("Enter registrationnumber to check out")?.Trim().ToUpper();
+            registrationNumber = StringHelpers.CheckAndRetryIfInvalid(registrationNumber).ToUpper();
 
+            var vehicleToCheckOut = Parkingspots
+                .FirstOrDefault(x => x.ParkedVehicles.Any(y => y.RegistrationNumber == registrationNumber));
 
-            // TODO: Dela upp i tre olika metoder beroende på Vehicle type.
-            var test = Parkingspots.Select(x => x.ParkedVehicles.FirstOrDefault(y => y.RegistrationNumber == input));
+            if (vehicleToCheckOut is not null)
+                CheckOut(vehicleToCheckOut, registrationNumber);
+            else
+                Console.WriteLine(  $"No vehicle with registrationnumber {registrationNumber} could be found" +
+                                    $"\nPress enter to continue");
+        }
 
-            var isSuccess = false;
-            for (int i = 0; i < Parkingspots.Count; i++)
+        private void CheckOut(Parkingspot parkingspot, string registrationNumber)
+        {
+            var parkedVehicle = parkingspot.ParkedVehicles.First(x => x.RegistrationNumber == registrationNumber);
+            parkingspot.ParkedVehicles.Remove(parkedVehicle);
+            Parkingspot.CalculateCost(parkingspot, parkedVehicle);
+
+            if (parkedVehicle is Car car)
             {
-                for (int j = 0; j < Parkingspots[i].ParkedVehicles.Count; j++)
-                {
-                    if (Parkingspots[i].ParkedVehicles[j].RegistrationNumber == input)
-                    {
-                        if (Parkingspots[i].ParkedVehicles[j] is Car car)
-                        {
-                            CheckOutVehicle(car);
-                            Parkingspots[i].ParkedVehicles.Remove(car);
-                            Parkingspots[i].Size = 0;
-                            Parkingspots[i].IsEmpty = true;
-                            isSuccess = true;
-                            break;
-                        }
-                        else if (Parkingspots[i].ParkedVehicles[j] is Motorcycle motorcycle)
-                        {
-                            CheckOutVehicle(motorcycle);
-                            Parkingspots[i].ParkedVehicles.Remove(motorcycle);
-                            Parkingspots[i].Size--;
-                            if (Parkingspots[i].Size is 0)
-                                Parkingspots[i].IsEmpty = true;
-                            isSuccess = true;
-                            break;
-                        }
-                        else if (Parkingspots[i].ParkedVehicles[j] is Bus bus)
-                        {
-                            CheckOutVehicle(bus);
-                            Parkingspots[i].ParkedVehicles.Remove(bus);
-                            Parkingspots[i].IsEmpty = true;
-                            Parkingspots[i].Size = 0;
-                            Parkingspots[i + 1].ParkedVehicles.Remove(bus);
-                            Parkingspots[i + 1].IsEmpty = true;
-                            Parkingspots[i + 1].Size = 0;
-                            isSuccess = true;
-                            break;
-                        }
-                    }
-                }
-                if (isSuccess)
-                {
-                    break;
-                }
+                parkingspot.Size = 0;
+            }
+            else if (parkedVehicle is Motorcycle motorcycle)
+            {
+                parkingspot.Size--;
+            }
+            else if (parkedVehicle is Bus bus)
+            {
+                parkingspot.Size = 0;
+                Parkingspots[parkingspot.Id].ParkedVehicles.Remove(bus);
+                Parkingspots[parkingspot.Id].Size = 0;
             }
         }
-        
-        // TODO: Think about to make this one generic function or if it is better to have non-generic overload?
-        private void CheckOutVehicle(Car car)
-        {
-            TimeSpan timeSpan = DateTimeOffset.Now - car.StartTime;
-            var cost = timeSpan.Minutes * 1.5;
-            Console.WriteLine($"Parkingprice for {car.RegistrationNumber} is {cost} SEK");
-            Console.ReadKey();
-        }
-
-        private void CheckOutVehicle(Motorcycle motorcycle)
-        {
-            TimeSpan timeSpan = DateTimeOffset.Now - motorcycle.StartTime;
-            var cost = timeSpan.Minutes * 1.5;
-            Console.WriteLine($"Parkingprice for {motorcycle.RegistrationNumber} is {cost} SEK");
-            Console.ReadKey();
-        }
-
-        private void CheckOutVehicle(Bus bus)
-        {
-            TimeSpan timeSpan = DateTimeOffset.Now - bus.StartTime;
-            var cost = timeSpan.Minutes * 1.5;
-            Console.WriteLine($"Parkingprice for {bus.RegistrationNumber} is {cost * 2} SEK");
-            Console.ReadKey();
-        }
+        #endregion Done
     }
 }

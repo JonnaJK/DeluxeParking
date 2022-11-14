@@ -3,18 +3,18 @@ using DeluxeParking.Interfaces;
 
 namespace DeluxeParking.Classes.Vehicles
 {
-    internal class VehicleBase : IVehicle
+    internal abstract class VehicleBase : IVehicle
     {
         public string Type { get; init; }
         public string RegistrationNumber { get; set; }
         public string Color { get; set; }
-        public DateTimeOffset StartTime { get; set; }
+        public abstract string GetUniqueProperty();
 
         public VehicleBase()
         {
             Type = this.GetType().Name;
             RegistrationNumber = GetRegistrationNumber();
-            Color = "Red";//GetVehicleColorFromUser();
+            Color = GetVehicleColorFromUser();
         }
 
         internal static void GetRandomVehicle(Random random, List<IVehicle> vehicles)
@@ -24,6 +24,7 @@ namespace DeluxeParking.Classes.Vehicles
                 0 => new Car(),
                 1 => new Motorcycle(),
                 2 => new Bus(),
+                _ => throw new NotImplementedException("HOW!"),
             };
             vehicles.Add(vehicle);
         }
@@ -31,7 +32,7 @@ namespace DeluxeParking.Classes.Vehicles
         private static string GetVehicleColorFromUser()
         {
             var input = GUI.GetInput("What color does the vehicle have?");
-            var color = StringHelpers.CheckAndReturnWhenIsNotNullOrEmpty(input);
+            var color = StringHelpers.CheckAndRetryIfInvalid(input);
             return color;
         }
 

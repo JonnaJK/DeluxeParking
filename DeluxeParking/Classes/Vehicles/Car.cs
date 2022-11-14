@@ -1,23 +1,22 @@
 ﻿using DeluxeParking.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DeluxeParking.Classes.Vehicles
 {
     internal class Car : VehicleBase
     {
-        public bool Electric { get; set; }
+        public bool IsElectric { get; set; }
 
         public Car()
         {
-            Electric = true;
-            //var input = GUI.GetInput("Is the car electric? Y/N");
-            //input = StringHelpers.ValidateAndGetCorrectInput(input, "y", "n");
-            //if (input is "y")
-            //    Electric = true;
+            var input = GUI.GetInput("Is the car electric? Y/N")?.ToLower();
+            input = StringHelpers.GetAndValidateInput(input, "y", "n", null);
+            if (input is "y")
+                IsElectric = true;
+        }
+
+        public override string GetUniqueProperty()
+        {
+            return IsElectric ? "Electric" : "Not electric";
         }
     }
 }

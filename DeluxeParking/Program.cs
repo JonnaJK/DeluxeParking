@@ -1,14 +1,10 @@
-﻿using DeluxeParking.Classes.Vehicles;
-using DeluxeParking.Helpers;
-using DeluxeParking.Interfaces;
-
-namespace DeluxeParking
+﻿namespace DeluxeParking
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            ParkingHouse parkingHouse = new();
+            ParkingHouse parkingHouse = new(15);
             parkingHouse.Run();
         }
     }

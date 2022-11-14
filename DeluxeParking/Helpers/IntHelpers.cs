@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DeluxeParking.Helpers
+﻿namespace DeluxeParking.Helpers
 {
     internal class IntHelpers
     {
@@ -25,6 +19,11 @@ namespace DeluxeParking.Helpers
             while (!int.TryParse(input, out number))
             {
                 input = GUI.GetInput("Input have to be numbers, try again.");
+            }
+            if (number < 0)
+            {
+                Console.WriteLine("Seats can not be a negative number, therefore it has been converted to non-negative");
+                number = Math.Abs(number);
             }
             return number;
         }
