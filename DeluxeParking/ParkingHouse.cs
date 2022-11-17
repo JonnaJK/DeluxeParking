@@ -201,6 +201,11 @@ namespace DeluxeParking
             var registrationNumber = GUI.GetInput("Enter registrationnumber to check out")?.Trim().ToUpper();
             registrationNumber = StringHelpers.CheckAndRetryIfInvalid(registrationNumber).ToUpper();
 
+            // Kommentar till Micke:
+            // Jag började med att först hämta vehicleToCheckOut av datatypen IVehicle.
+            // Sedan ändrade jag om det så att jag först hämtade vilken Parkingspot bilen som ska checkas ut står på
+            // Därav står variabelnamnet fortfarande som vehicleToChekOut fast det egentligen är en parkingspot som du kan se
+            // när jag kallar på metoden CheckOut.
             var vehicleToCheckOut = Parkingspots
                 .FirstOrDefault(x => x.ParkedVehicles.Any(y => y.RegistrationNumber == registrationNumber));
 
